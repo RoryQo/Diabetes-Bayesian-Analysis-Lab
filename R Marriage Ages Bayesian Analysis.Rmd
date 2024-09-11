@@ -1,0 +1,171 @@
+---
+title: "Age and Marriage Bayesian Analysis"
+author: "Rory Quinlan"
+output: html_document
+---
+
+
+```{r,warning=F,message=F}
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(gridExtra)
+library(tidyverse)
+data<-read.csv('C:\\Users\\roryq\\Downloads\\MQE_Data\\AustralianData.csv')
+```
+
+```{r}
+#View data
+colnames(data)
+nrow(data)
+head(data,1)
+```
+
+```{r}
+# Remove unneeded columns
+data<-data[,1:4]
+colnames(data)
+```
+
+### Q 1A.)
+#### Easy way
+```{r}
+result <- t.test(data$gas)
+ 
+# Extract the confidence interval
+confidence_interval <- result$conf.int
+ 
+# Print the confidence interval
+confidence_interval
+```
+
+#### Hard way
+```{r}
+mean<-mean(data$gas)
+n<-length(data$gas)
+sd<-sd(data$gas)
+se<-sd/sqrt(n)
+alpha<-0.05
+df<-n-1
+t_score<-qt(p=alpha/2,df=df,lower.tail=F)
+me<-t_score*se
+upper<-mean+me
+lower<-mean-me
+print(c(lower,upper))
+```
+
+### Q 1B.)
+```{r}
+df<-data %>% filter(metropolitan=="YES")
+```
+
+```{r}
+result1 <- t.test(df$gas)
+ 
+# Extract the confidence interval
+confidence_interval1 <- result1$conf.int
+ 
+# Print the confidence interval
+confidence_interval1
+```
+
+### Q 1C.)
+
+
+```{r}
+df2<-data %>% filter(youngsingle=="YES")
+result2 <- t.test(df2$gas)
+# Extract the confidence interval
+confidence_interval2 <- result2$conf.int
+ 
+# Print the confidence interval
+confidence_interval2
+```
+
+### Q 2.)
+
+None of the ci include each other, suggesting a significant difference between the consumption of these groups
+
+
+### Q 3.)
+
+```{r, warning=F}
+p <- ggplot(data, aes(x=gas, y=metropolitan, color=metropolitan)) + geom_boxplot()+coord_flip()+labs(title="Gas Consumption of Metropolitan ")
+
+p2<-ggplot(data, aes(x=gas, y=metropolitan, color=metropolitan)) + geom_boxplot()+coord_flip()+scale_x_continuous(limits=c(0,1000), breaks=seq(0,1000,200), expand = c(0, 0))+labs(subtitle="Zoomed In Version")
+
+p3 <- ggplot(data, aes(x=gas, y=youngsingle, color=youngsingle)) + geom_boxplot()+coord_flip()+labs(title="Gas Consumption of youngsingle ")
+
+p4<-ggplot(data, aes(x=gas, y=youngsingle, color=youngsingle)) + geom_boxplot()+coord_flip()+scale_x_continuous(limits=c(0,1000), breaks=seq(0,1000,200), expand = c(0, 0))+labs(subtitle="Zoomed In Version")
+
+grid.arrange(p, p2,p3,p4, ncol = 2)
+```
+
+```{r,warning=F}
+
+
+# Bind the number 1 to every observation from group1 (metro)
+Group<-c(1)
+g<-cbind(Group,df$gas)
+
+#Bind the number 2 to every observation from group2(young/single)
+Group<-c(2)
+g2<-cbind(Group,df2$gas)
+
+# Bind the number 3 to every observation from group3 (All observations)
+Group<-c(3)
+
+# Bind all previous data sets together to have one column indicating group
+g3<-cbind(Group,data$gas)
+g4<- as.data.frame(rbind(g,g2,g3))
+
+# Summarise each group with mean,sd, se,and CI in new df
+my_sum <- g4 %>%
+  group_by(Group) %>%
+  summarise( 
+    n=n(),
+    mean=mean(V2),
+    sd=sd(V2)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+ 
+# Plot summary and CI with error bars on barplot
+# Rename groups
+ggplot(my_sum) +
+  geom_bar( aes(x=factor(Group), y=mean), stat="identity", fill="cornflowerblue", alpha=0.75) +
+  geom_errorbar( aes(x=Group, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="black", alpha=0.9, size=1.5) +
+  ggtitle("Means and CIs for Gas Consumption of Ad Campaign Groups")+coord_cartesian(ylim = c(150,300))+scale_x_discrete(labels=c('Metropolitan', 'Young/single', 'Aggregate'))+labs(x="Ad Campaign Groups", y="Mean of Gas Consumption")
+
+```
+
+```{r}
+# Create tables
+t1<-t(prop.table(table(df$youngsingle))) %>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),full_width=F,position = "float_right") %>% 
+  add_header_above(header=c("those that live in Metropolitan are they Young/Single?"=2))
+
+# Create Tables
+t2<-t(prop.table(table(df2$metropolitan)))%>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),full_width=F,position = "left") %>% add_header_above(header=c("Of Young/Single do they live in Metropolitan?"=2))
+
+t1;t2
+
+```
+
+```{r}
+df<-as.data.frame(prop.table(table(df$youngsingle)))
+df2<-as.data.frame(prop.table(table(df2$metropolitan)))
+
+p1<-ggplot(df,aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat="identity", position = "dodge")+labs(title="Of those that live in Metropolitan",subtitle= "Are they Young/Single?",x="Young/Single?",y="Frequency")+ theme(legend.position = "none")
+```
+
+```{r}
+
+p2<-ggplot(df2,aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat="identity", position = "dodge")+labs(title="Of those that are Young/Single",subtitle="do they live in Metropolitan or not?",x="Live in Metropolitan Area?",y="Frequency")+ theme(legend.position = "none")
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
