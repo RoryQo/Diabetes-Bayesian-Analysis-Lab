@@ -55,7 +55,7 @@ for(s in 1:1000){
 ```
 4. **Parameter Estimation**: The estimated parameters are stored for further analysis and visualization.
 5. **Visualizations**: Density plots are generated to compare the distributions of key health parameters between the two groups.
-<img src="https://github.com/RoryQo/R-Diabetes-Bayesian-Analysis-Lab/raw/main/Graph1.jpg" alt="Diabetes Bayesian Analysis Graph" style="width: 400px;" />
+<img src="https://github.com/RoryQo/R-Diabetes-Bayesian-Analysis-Lab/raw/main/Graph1.jpg" alt="Diabetes Bayesian Analysis Graph" style="width: 700px;" />
 
 
 ## Visualizations
