@@ -28,8 +28,35 @@ The dataset includes health-related variables for patients, specifically focusin
 ## Methodology
 1. **Data Preparation**: The dataset is divided into two groups based on diabetes status: those with diabetes and those without.
 2. **Monte Carlo Simulations**: We perform simulations to estimate the means and covariance structures for both groups using prior distributions.
-3. **Parameter Estimation**: The estimated parameters are stored for further analysis and visualization.
-4. **Visualizations**: Density plots are generated to compare the distributions of key health parameters between the two groups.
+```
+# MC estimates for diabetes parameters
+#prior parameters
+ybar <- apply(dia, 2, mean)
+Sigma <- cov(dia)
+n <- dim(dia)[1]
+mu0 <- ybar
+nu0 <- 9
+L0 <- S0 <- Sigma
+theta_ad<-sigma_ad <- NULL
+
+for(s in 1:1000){ 
+#Update theta
+ Ln <- solve(solve(L0) + n * solve(Sigma))
+ mun <- Ln %*% (solve(L0) %*% mu0 + n * solve(Sigma) %*% ybar)
+ theta <- mvrnorm(1, mun, Ln)
+ 
+#update Simga
+ Sn <- S0 + (t(dia) - c(theta)) %*% t( t(dia) - c(theta))
+ Sigma <- solve( rWishart(1, nu0 + n, solve(Sn))[,,1])
+ 
+# save results
+ theta_ad <- rbind(theta_ad, theta) ; sigma_ad <- rbind(sigma_ad, c(Sigma))
+}
+```
+4. **Parameter Estimation**: The estimated parameters are stored for further analysis and visualization.
+5. **Visualizations**: Density plots are generated to compare the distributions of key health parameters between the two groups.
+<img src="https://github.com/RoryQo/R-Diabetes-Bayesian-Analysis-Lab/raw/main/Graph1.jpg" alt="Diabetes Bayesian Analysis Graph" style="width: 400px;" />
+
 
 ## Visualizations
 The following plots are included:
