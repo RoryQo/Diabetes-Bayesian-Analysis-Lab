@@ -7,7 +7,7 @@
 4. [Methodology](#methodology)  
 5. [Visualizations](#visualizations)
 6. [Conclusion](#conclusion)
-
+ 
 ## Overview
 This project uses Bayesian analysis to investigate the differences in various health parameters between individuals with diabetes and those without. We utilize Monte Carlo simulations to estimate the parameters for both groups and visualize the results to highlight the differences.
 
