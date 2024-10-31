@@ -4,7 +4,7 @@
 1. [Overview](#overview)  
 2. [Key Findings](#key-findings)  
 3. [Data Description](#data-description)
-4. [Methodology](#methodology) 
+4. [Methodology](#methodology)  
 5. [Visualizations](#visualizations)
 6. [Conclusion](#conclusion)
 
