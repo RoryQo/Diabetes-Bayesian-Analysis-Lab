@@ -1,4 +1,4 @@
-# Diabetes Bayesian Analysis  
+# Diabetes Bayesian Analysis   
    
 ## Table of Contents  
 1. [Overview](#overview)  
